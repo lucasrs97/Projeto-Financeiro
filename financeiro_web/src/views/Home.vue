@@ -14,7 +14,9 @@
                 dark
                 class="mycard"
                 >
-                  <v-card-title class="headline">R$ 10.895,00</v-card-title>
+                  <!--<v-card-title class="headline">R$ 10.895,00</v-card-title>-->
+                  <v-card-title class="headline"> {{ totalReceitas }} </v-card-title>
+                  
                   <v-card-subtitle>Total de Receitas</v-card-subtitle>
                   <v-card-actions>
                       <v-btn text>VER MAIS</v-btn>
@@ -27,7 +29,9 @@
                 dark
                 class="mycard"
                 >
-                  <v-card-title class="headline">R$ 7.500,00</v-card-title>
+                  <!--<v-card-title class="headline">R$ 7.500,00</v-card-title>-->
+                  <v-card-title class="headline"> {{ totalDespesas }} </v-card-title>
+
                   <v-card-subtitle>Total de Despesas</v-card-subtitle>
                   <v-card-actions>
                       <v-btn text>VER MAIS</v-btn>
@@ -40,7 +44,9 @@
                 dark
                 class="mycard"
                 >
-                  <v-card-title class="headline">R$ 895,00</v-card-title>
+                  <!--<v-card-title class="headline">R$ 895,00</v-card-title>-->
+                  <v-card-title class="headline"> {{ caixa }} </v-card-title>
+
                   <v-card-subtitle>Caixa Mensal</v-card-subtitle>
                   <v-card-actions>
                       <v-btn text>VER MAIS</v-btn>
@@ -70,8 +76,31 @@
 
 /*import Registrations from '../components/Registrations'*/
 
+import Home from '../services/home'
+
 export default {
     name: 'Home',
+
+    data: () => {
+      return {
+        totalReceitas: '',
+        totalDespesas: '',
+        caixa: '',
+      }
+    },
+
+    mounted() {
+      Home.listar().then(resposta => {
+        console.log(resposta);
+
+        this.totalReceitas = resposta.data[0];
+        this.totalDespesas = resposta.data[1];
+        this.caixa = resposta.data[2];
+
+      }).catch( () => {
+        alert("Houve um problema ao tentar recuperar os registros.")
+      })
+    }
 
     /*components: {
         Registrations
@@ -81,8 +110,8 @@ export default {
 
 <style scoped>
   .mycard:hover {
-    transform: scale(1.050);
-    transition: all 200ms ease-in;
+    transform: scale(1.025);
+    transition: all 400ms ease-in;
     cursor: pointer;
     opacity: 0.9;
   }

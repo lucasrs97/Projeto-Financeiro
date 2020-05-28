@@ -42,8 +42,7 @@
                         </v-col>
 
                         <v-col cols="12" lg="6">
-                            <v-menu
-                                ref="menu1"
+                           <v-menu
                                 v-model="menu1"
                                 :close-on-content-click="false"
                                 transition="scale-transition"
@@ -51,16 +50,15 @@
                                 max-width="290px"
                                 min-width="290px"
                             >
-                                <!-- prepend-icon="event" -->
                                 <template v-slot:activator="{ on }">
                                     <v-text-field
-                                        v-model="dateFormatted"
-                                        label="Data*"
-                                        hint="MM/DD/YYYY format"
-                                        persistent-hint
-                                        
-                                        @blur="date = parseDate(dateFormatted)"
-                                        v-on="on"
+                                    v-model="computedDateFormatted"
+                                    label="Data"
+                                    hint="dd/mm/yyyy"
+                                    persistent-hint
+                                    prepend-icon="mdi-calendar"
+                                    readonly
+                                    v-on="on"
                                     ></v-text-field>
                                 </template>
                                 <v-date-picker v-model="date" no-title @input="menu1 = false"></v-date-picker>
@@ -85,8 +83,8 @@
                                 label="Categoria*"
                                 required
                                 :error-messages="categoriaErrors"
-                                @change="$v.select.$touch()"
-                                @blur="$v.select.$touch()"
+                                @change="$v.cadastros.categoria.$touch()"
+                                @blur="$v.cadastros.categoria.$touch()"
                             ></v-select>
                         </v-col>
                     </v-row>
@@ -106,6 +104,9 @@
 <script>
 import { required } from 'vuelidate/lib/validators'
 
+import Receitas from '../services/receitas'
+import Despesas from '../services/despesas'
+
 export default {
     name: 'Registrations',
 
@@ -115,14 +116,12 @@ export default {
             required: true
         } 
     },
-
-    /**dialog: false, */
     
-    data: vm => ({
+    data: () => ({
         dialog: false,
 
         date: new Date().toISOString().substr(0, 10),
-        dateFormatted: vm.formatDate(new Date().toISOString().substr(0, 10)),
+        
         menu1: false,
 
         isReceita: false,
@@ -151,7 +150,6 @@ export default {
     validations: {
         cadastros: {
             valor: { required },
-            data: { required },
             descricao: { required },
             categoria: { required },
         }
@@ -160,23 +158,29 @@ export default {
     computed: {
         valorErrors () {
             const errors = []
-            if (!this.$v.cadastros.valor.$dirty) return errors
+            if (!this.$v.cadastros.valor.$dirty) 
+                return errors
+            
             !this.$v.cadastros.valor.required && errors.push('Valor é obrigatório.')
-            return errors
+                return errors
         },
 
         descricaoErrors () {
             const errors = []
-            if (!this.$v.cadastros.descricao.$dirty) return errors
+            if (!this.$v.cadastros.descricao.$dirty) 
+                return errors
+            
             !this.$v.cadastros.descricao.required && errors.push('Descrição é obrigatório.')
-            return errors
+                return errors
         },
 
         categoriaErrors () {
             const errors = []
-            if (!this.$v.cadastros.categoria.$dirty) return errors
+            if (!this.$v.cadastros.categoria.$dirty) 
+                return errors
+            
             !this.$v.cadastros.categoria.required && errors.push('Categoria é obrigatório.')
-            return errors
+                return errors
         },
 
         computedDateFormatted () {
@@ -185,9 +189,6 @@ export default {
     },
 
     watch: {
-        date () {
-            this.dateFormatted = this.formatDate(this.date)
-        },
 
         tipoCadastro () {
             if(this.tipoCadastro == 1) {
@@ -205,12 +206,12 @@ export default {
         if (!date) return null
 
         const [year, month, day] = date.split('-')
-            return `${month}/${day}/${year}`
+            return `${day}/${month}/${year}`
         },
         parseDate (date) {
         if (!date) return null
 
-        const [month, day, year] = date.split('/')
+        const [day, month, year] = date.split('/')
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
         },
 
@@ -218,50 +219,40 @@ export default {
 
             this.$v.$touch()
 
-            if (this.$v.$error) {
-                alert("É error.")
-            } else {
-                alert("OK!")
+            if (!this.$v.$invalid) {
+                
+                this.cadastros.data = this.parseDate(this.computedDateFormatted);
+            
+                if (this.isReceita == true) {
+                    Receitas.salvar(this.cadastros).then(resposta => {
+                    console.log(resposta);
+                    
+                    }).catch( () => {
+                        alert("Erro ao tentar salvar a Receita.")
+
+                    }).finally( () => {
+                        this.dialog = false;
+                    })
+
+                } 
+                
+                else if (this.isDespesa == true) {
+                    Despesas.salvar(this.cadastros).then(resposta => {
+                    console.log(resposta);
+
+                    }).catch( () => {
+                        alert("Erro ao tentar salvar a Despesa.");
+
+                    }).finally( () => {
+                        this.dialog = false;
+                    })
+                }
             }
-
-            if (this.$v.$invalid) {
-                alert("É inválido.")
-            } else {
-                alert("OK!")
-            }
-
-            
-            
-            
-
-            /*if (!this.$v.$invalid) {
-                alert("Campos preenchidos. Salvando!");
-            } else {
-                this.$v.$touch();
-            }*/
-
-            /*if (this.isReceita == true) {
-                Receitas.salvar(this.cadastros).then(resposta => {
-                console.log(resposta);
-                this.$store.commit('closeModal')
-            }).catch( () => {
-                alert("Erro ao tentar salvar a Receita.")
-            })
-
-            } else if (this.isDespesa == true) {
-                Despesas.salvar(this.cadastros).then(resposta => {
-                console.log(resposta);
-                this.$store.commit('closeModal')
-            }).catch( () => {
-                alert("Erro ao tentar salvar a Despesa.")
-            })
-            }*/
         },
 
         resetForm() {
             this.$v.$reset();
             this.cadastros.valor = '',
-            this.cadastros.data = '',
             this.cadastros.descricao = '',
             this.cadastros.categoria = ''
         }
