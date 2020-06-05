@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,22 +27,12 @@ public class ReceitaController {
 		return receitaRepository.findAll();
 	}
 	
-	@GetMapping("/receita/{id}")
-	public Receita listarReceitaId(@PathVariable(value="id") long id) {
-		return receitaRepository.findById(id);
-	}
-	
 	@PostMapping("/receita")
 	public void salvarReceita(@RequestBody Receita receita) {
 		receitaRepository.save(receita);
 	}
 	
-	@PutMapping("/receita")
-	public void atualizarReceita(@RequestBody Receita receita) {
-		receitaRepository.save(receita);
-	}
-	
-	@DeleteMapping("/receita")
+	@DeleteMapping("/delete-receita")
 	public void deletarReceita(@RequestBody Receita receita) {
 		receitaRepository.delete(receita);
 	}

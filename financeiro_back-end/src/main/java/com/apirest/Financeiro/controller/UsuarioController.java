@@ -2,7 +2,9 @@ package com.apirest.Financeiro.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -91,6 +93,55 @@ public class UsuarioController {
 		
 		return listaDados;
 		
+	}
+	
+	@GetMapping("/releases")
+	public Map<Integer, List<Object>> listarLancamentos() {
+		
+		Map<Integer, List<Object>> lancamentos = new HashMap<Integer, List<Object>>();
+		
+		List<Object> lancamentosReceitas = new ArrayList<>();
+		List<Object> lancamentosDespesas = new ArrayList<>();
+		
+		List<Receita> listaReceitas = listarReceitas();
+		List<Despesa> listaDespesas = listarDespesas();
+		
+		for (Receita receitas : listaReceitas) {
+			lancamentosReceitas.add(receitas);
+		}
+		
+		for (Despesa despesas : listaDespesas) {
+			lancamentosDespesas.add(despesas);
+		}
+		
+		lancamentos.put(1, lancamentosReceitas);
+		lancamentos.put(2, lancamentosDespesas);
+		
+		return lancamentos;
+	}
+	
+	public List<Receita> listarReceitas() {
+		List<Receita> arrayReceitas = new ArrayList<Receita>();
+		
+		List<Receita> receitas = receitaRepository.findAll();
+		
+		for (Receita receita : receitas) {
+			arrayReceitas.add(receita);
+		}
+		
+		return arrayReceitas;
+	}
+	
+	public List<Despesa> listarDespesas() {
+		List<Despesa> arrayDespesas = new ArrayList<Despesa>();
+		
+		List<Despesa> despesas = despesaRepository.findAll();
+		
+		for (Despesa despesa : despesas) {
+			arrayDespesas.add(despesa);
+		}
+		
+		return arrayDespesas;
 	}
 	
 }

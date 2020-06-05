@@ -2,11 +2,13 @@ package com.apirest.Financeiro.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -18,14 +20,15 @@ public class Receita implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	@Column(nullable = false)
 	private BigDecimal valor;
 	
 	@Column(nullable = false)
-	private Date data;
+//	private Date data;
+	private LocalDate data;
 	
 //	@Column(nullable = false)
 //	private String conta;
@@ -55,13 +58,21 @@ public class Receita implements Serializable {
 	public void setValor(BigDecimal valor) {
 		this.valor = valor;
 	}
-
-	public Date getData() {
+	
+	//	Método privado para que apenas o método de formatação da data o acesse.
+	//	Desta forma, o Controller não enxergará o método e não o incluirá no JSON enviado como resposta à requisição.
+	public LocalDate getData() {
 		return data;
 	}
-
-	public void setData(Date data) {
+	
+	public void setData(LocalDate data) {
 		this.data = data;
+	}
+	
+	public String getDataFormatada() {
+		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		
+		return getData().format(formato);
 	}
 
 //	public String getConta() {
@@ -94,6 +105,10 @@ public class Receita implements Serializable {
 
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
+	}
+	
+	public String getTipo() {
+		return "Receita";
 	}
 	/*	MÉTODOS GET E SET */
 

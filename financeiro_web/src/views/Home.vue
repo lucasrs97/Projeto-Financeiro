@@ -89,17 +89,23 @@ export default {
       }
     },
 
+    methods: {
+        listar() {
+            Home.listar().then(resposta => {
+                console.log(resposta);
+
+                this.totalReceitas = resposta.data[0];
+                this.totalDespesas = resposta.data[1];
+                this.caixa = resposta.data[2];
+
+            }).catch( () => {
+                alert("Houve um problema ao tentar recuperar os registros.")
+            })
+        }
+    },
+
     mounted() {
-      Home.listar().then(resposta => {
-        console.log(resposta);
-
-        this.totalReceitas = resposta.data[0];
-        this.totalDespesas = resposta.data[1];
-        this.caixa = resposta.data[2];
-
-      }).catch( () => {
-        alert("Houve um problema ao tentar recuperar os registros.")
-      })
+        this.listar()
     }
 
     /*components: {
