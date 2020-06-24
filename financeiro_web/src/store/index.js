@@ -21,14 +21,16 @@ export default new Vuex.Store({
 
   mutations: {
 
-    SET_SNACKBAR(state, payload) {
-        state.textSnackbar = payload
-        state.snackbar = true
+    SET_TEXT_SNACKBAR(state, payload) {
+        state.textSnackbar = payload 
     },
 
-    RESET_SNACKBAR(state) {
-        state.textSnackbar = '',
-        state.snackbar = false
+    RESET_TEXT_SNACKBAR(state) {
+        state.textSnackbar = ''
+    },
+
+    SET_SNACKBAR(state, payload) {
+        state.snackbar = payload
     },
 
     OPEN_MODAL_RECEITA (state) {
@@ -64,11 +66,18 @@ export default new Vuex.Store({
   actions: {
 
     SET_MENSAGEM_SNACKBAR(store, payload) {
+        store.commit('SET_SNACKBAR', true)
+        store.commit('SET_TEXT_SNACKBAR', payload)
+    },
+
+    RESET_SNACKBAR(store, payload) {
         store.commit('SET_SNACKBAR', payload)
+        store.commit('RESET_TEXT_SNACKBAR')
     },
 
     LISTAR_DADOS(store) {
         Lancamentos.listar().then(resposta => {
+            console.log(resposta)
             store.commit('ATUALIZA_TABELA', resposta)
         }).catch( () => {
             alert("Não foi possível listar os dados.");
@@ -80,7 +89,8 @@ export default new Vuex.Store({
 
     OPEN_MODAL(store, payload) {
         
-        store.commit('RESET_SNACKBAR')
+        store.commit('SET_SNACKBAR', false)
+        store.commit('RESET_TEXT_SNACKBAR')
 
         if(payload == 'Receita') {
             store.commit('OPEN_MODAL_RECEITA')
@@ -91,7 +101,9 @@ export default new Vuex.Store({
 
     OPEN_MODAL_UPDATE(store, payload) {
 
-        store.commit('RESET_SNACKBAR')
+        store.commit('SET_SNACKBAR', false)
+        store.commit('RESET_TEXT_SNACKBAR')
+
         store.commit('PREPARA_EDICAO', payload)
         
         if(payload.tipo == 'Receita') {

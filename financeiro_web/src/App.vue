@@ -156,8 +156,15 @@ export default {
   }),
 
   computed: {
-      snackbar() {
-          return this.$store.state.snackbar
+      snackbar: {
+          get: function() {
+              return this.$store.state.snackbar
+          },
+
+          set: function() {
+              this.$store.dispatch('RESET_SNACKBAR', false)
+          }
+          
       },
 
       textSnackbar() {
@@ -172,7 +179,9 @@ export default {
 
     ...mapActions([
         'OPEN_MODAL'
-    ])
+    ]),
+
+
   }
 };
 </script>

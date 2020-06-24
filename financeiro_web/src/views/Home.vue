@@ -98,10 +98,18 @@ export default {
                 this.totalDespesas = resposta.data[1];
                 this.caixa = resposta.data[2];
 
+                this.formatarValor()
+
             }).catch( () => {
                 alert("Houve um problema ao tentar recuperar os registros.")
             })
-        }
+        },
+
+        formatarValor() {
+            this.totalReceitas = Number(this.totalReceitas).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            this.totalDespesas = Number(this.totalDespesas).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            this.caixa = Number(this.caixa).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        },
     },
 
     mounted() {

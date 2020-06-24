@@ -2,6 +2,7 @@ package com.apirest.Financeiro.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -27,11 +28,7 @@ public class Receita implements Serializable {
 	private BigDecimal valor;
 	
 	@Column(nullable = false)
-//	private Date data;
 	private LocalDate data;
-	
-//	@Column(nullable = false)
-//	private String conta;
 	
 	@Column(nullable = false)
 	private String descricao;
@@ -59,10 +56,32 @@ public class Receita implements Serializable {
 		this.valor = valor;
 	}
 	
-	//	Método privado para que apenas o método de formatação da data o acesse.
-	//	Desta forma, o Controller não enxergará o método e não o incluirá no JSON enviado como resposta à requisição.
+	public String getValorFormatado() {
+		
+		String formato = "###,###.00"; 
+		DecimalFormat df = new DecimalFormat(formato);
+		
+		String valorFormatado = df.format(getValor());
+		
+		return "R$ " + valorFormatado;
+	}
+	
+	/*
+	 * Método privado para que apenas o método de formatação da data o acesse.
+	 * Desta forma, o Controller não enxergará o método e não o incluirá no JSON enviado como resposta à requisição.
+	 * 
+	 * **RETIRADO**
+	 */
 	public LocalDate getData() {
-		return data;
+		/*
+		 *	Por algum motivo que eu ainda não consegui decifrar, a data está vindo com um dia a menos.
+			No banco ela é cadastrada corretamente, mas no método get só vem com o dia anterior!
+			A solução encontrada foi usar o "plusDays" do LocalDate para acrescentar um dia na data e,
+			dessa forma, retorna a data que está cadastrada no banco.
+		 */
+		LocalDate dataCorreta = data.plusDays(1);
+		
+		return dataCorreta;
 	}
 	
 	public void setData(LocalDate data) {
@@ -74,14 +93,6 @@ public class Receita implements Serializable {
 		
 		return getData().format(formato);
 	}
-
-//	public String getConta() {
-//		return conta;
-//	}
-//
-//	public void setConta(String conta) {
-//		this.conta = conta;
-//	}
 
 	public String getDescricao() {
 		return descricao;

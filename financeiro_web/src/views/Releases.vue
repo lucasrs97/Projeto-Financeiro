@@ -39,6 +39,10 @@
                 <v-chip :color="getColor(item.tipo)" dark>{{ item.tipo }}</v-chip>
             </template>
 
+            <!-- Valor formatado não ordena corretamente
+            <template v-slot:item.valorFormatado="{ item }">
+                <v-chip outlined :color="getColor(item.tipo)" dark> {{ item.valorFormatado }}</v-chip>
+            </template> -->
             <template v-slot:item.valor="{ item }">
                 <v-chip outlined :color="getColor(item.tipo)" dark> {{ item.valor }}</v-chip>
             </template>
@@ -55,14 +59,21 @@ export default {
       return {
         search: '',
         headers: [
-          { text: 'TIPO DE LANÇAMENTO', align: 'start', value: 'tipo', },
-          { text: 'DATA', value: 'dataFormatada' },
-          { text: 'VALOR', value: 'valor' },
-          { text: 'DESCRIÇÃO', value: 'descricao' },
-          { text: 'CATEGORIA', value: 'categoria' },
+            { text: 'TIPO DE LANÇAMENTO', align: 'start', value: 'tipo', },
           
-          // Retirar em produção
-          { text: 'ID', value: 'id' },
+            // Ao utilizar a data formatada, a ordenação, que é feita com a data no formato ISO, apresenta problemas.
+            //{ text: 'DATA', value: 'dataFormatada' },
+            { text: 'DATA', value: 'data' },
+            
+            // Ao utilizar o valor formatado, a ordenação, que é feita com o valor puro, apresenta problemas.
+            //{ text: 'VALOR', value: 'valorFormatado' },
+            { text: 'VALOR', value: 'valor' },
+
+            { text: 'DESCRIÇÃO', value: 'descricao' },
+            { text: 'CATEGORIA', value: 'categoria' },
+          
+            // Retirar em produção
+            { text: 'ID', value: 'id' },
         ],
 
         receitas: [],
