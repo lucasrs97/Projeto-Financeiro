@@ -4,6 +4,8 @@
         <v-card>
             <template v-if="isReceita">
                 <v-card-title class="receita">
+                    
+                    <v-icon left dark large>mdi-plus-circle</v-icon>
                     <span class="headline">Cadastro de Receitas</span>
 
                     <template v-if="isUpdate">
@@ -18,6 +20,8 @@
 
             <template v-if="isDespesa">
                 <v-card-title class="despesa">
+                    
+                    <v-icon left dark large>mdi-minus-circle</v-icon>
                     <span class="headline">Cadastro de Despesas</span>
 
                     <template v-if="isUpdate">
@@ -296,55 +300,8 @@ export default {
         },
 
         formatarValor() {
-            //console.log("valor(formatado): ")
-            //console.log(valor)
-
             let valorSemFormatacao = this.retiraFormatacao(this.cadastros.valor)
-            //console.log("valorSemFormatacao: ")
-            //console.log(valorSemFormatacao)
-
             this.cadastros.valor = Number(valorSemFormatacao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-            //console.log("this.cadastros.valor: ")
-            //console.log(this.cadastros.valor)
-
-
-            /*console.log('ANTES de retirar o R$')
-            console.log(valor)
-            console.log()
-
-            valor = valor.replace('R$ ','')
-            console.log('DEPOIS de retirar o R$')
-            console.log(valor)
-            console.log()
-
-            valor = valor.replace(/\./g,'')
-            valor = valor.replace(',','.')*/
-
-            //valor = Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-            /*console.log()
-            console.log()
-
-            console.log("Depois de retirar o R$, os pontos, e trocar a vírgula por ponto.")
-            this.cadastros.valor = valor
-            console.log(this.cadastros.valor)
-            console.log()
-
-            /*try {
-                console.log('entrou no try')
-
-                valor = Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-            } catch (error) {
-                console.log('entrou no catch')
-
-                console.log(error)
-                valor = this.cadastros.valor
-            }
-
-            console.log('depois')
-            console.log(valor)*/
-
         },
 
         ...mapMutations([

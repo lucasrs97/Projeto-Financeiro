@@ -69,8 +69,8 @@ export default {
             //{ text: 'VALOR', value: 'valorFormatado' },
             { text: 'VALOR', value: 'valor' },
 
-            { text: 'DESCRIÇÃO', value: 'descricao' },
             { text: 'CATEGORIA', value: 'categoria' },
+            { text: 'DESCRIÇÃO', value: 'descricao' },
           
             // Retirar em produção
             { text: 'ID', value: 'id' },
