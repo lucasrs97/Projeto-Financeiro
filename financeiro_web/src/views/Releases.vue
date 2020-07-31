@@ -111,7 +111,6 @@ export default {
 
         rowClick: function (item) {    
             //row.select(true);
-
             this.OPEN_MODAL_UPDATE(item)
         }, 
       

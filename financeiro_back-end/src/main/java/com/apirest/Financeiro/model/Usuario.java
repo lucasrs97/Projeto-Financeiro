@@ -1,6 +1,8 @@
 package com.apirest.Financeiro.model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,9 +10,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 @Entity
 @Table(name = "usuarios")
-public class Usuario implements Serializable {
+public class Usuario implements UserDetails, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -19,16 +24,16 @@ public class Usuario implements Serializable {
 	private long id;
 	
 	@Column(nullable = false)
-	private String login;
+	private String nome;
+	
+	@Column(nullable = false)
+	private String email;
 	
 	@Column(nullable = false)
 	private String senha;
 	
 	@Column(nullable = false)
-	private String nome;
-	
-	@Column(nullable = false)
-	private String email;
+	private LocalDate dataCadastro;
 	
 	/*	MÉTODOS GET E SET */
 	public long getId() {
@@ -37,22 +42,6 @@ public class Usuario implements Serializable {
 	
 	public void setId(long id) {
 		this.id = id;
-	}
-	
-	public String getLogin() {
-		return login;
-	}
-	
-	public void setLogin(String login) {
-		this.login = login;
-	}
-	
-	public String getSenha() {
-		return senha;
-	}
-	
-	public void setSenha(String senha) {
-		this.senha = senha;
 	}
 	
 	public String getNome() {
@@ -70,6 +59,58 @@ public class Usuario implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String getSenha() {
+		return senha;
+	}
+	
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+	
+	public LocalDate getDataCadastro() {
+		return dataCadastro;
+	}
+	
+	public void setDataCadastro(LocalDate dataCadastro) {
+		this.dataCadastro = dataCadastro;
+	}
 	/*	MÉTODOS GET E SET */
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return null;
+	}
+
+	@Override
+	public String getPassword() {
+		return this.senha;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
 
 }

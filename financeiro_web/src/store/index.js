@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import store_home from './modules/home'
+
 import Lancamentos from '../services/lancamentos'
 
 Vue.use(Vuex)
@@ -21,9 +23,60 @@ export default new Vuex.Store({
 
     snackbar: false,
     textSnackbar: '',
+
+    autenticado: localStorage.getItem('autenticado'),
+    usuarioLogado: {
+        id:     localStorage.getItem('id'),
+        nome:   localStorage.getItem('nome'),
+        email:  localStorage.getItem('email'),
+        senha:  localStorage.getItem('senha'),
+        data:   localStorage.getItem('data')
+    },
+
+    spinner: false
+
   },
 
   mutations: {
+
+    SET_SPINNER(state, payload) {
+        state.spinner = payload
+    },
+
+    SET_USUARIO_LOGADO(state, payload) {
+        /**
+         * Preciso setar a informação do usuário no LocalStorage,
+         * porque essa informação era perdida toda vez que o usuário
+         * atualizava a página ou tentava navegar via url, uma vez que
+         * os dados da store são limpados em qualquer refresh manual.
+         * Agora, é possível fazer a navegação manual sem que o usuário
+         * perca a sua autenticação.
+         */
+        localStorage.setItem('id', payload.id);
+        localStorage.setItem('nome', payload.nome);
+        localStorage.setItem('email', payload.email);
+        localStorage.setItem('senha', payload.senha);
+        localStorage.setItem('data', payload.data)
+
+        /**
+         * Por outro lado, preciso também setar a informação diretamente no state,
+         * porque o primeiro carregamento da home é feito antes da store retornar os
+         * dados do LocalStorage, ou seja, a Home era carregada e os dados da API não
+         * eram trazidos, pois não havia sido enviado nenhum usuário para a requisição.
+         * Dessa forma, o state recebe rapidamente os dados e já é possível fazer uma requisição
+         * para a página home. 
+         */
+        state.usuarioLogado.id = payload.id
+        state.usuarioLogado.nome = payload.nome
+        state.usuarioLogado.email = payload.email
+        state.usuarioLogado.senha = payload.senha
+        state.usuarioLogado.data = payload.data
+    },
+
+    SET_STATUS_AUTENTICACAO(state, payload) {
+        localStorage.setItem('autenticado', payload);
+        state.autenticado = payload
+    },
 
     SET_TEXT_SNACKBAR(state, payload) {
         state.textSnackbar = payload 
@@ -89,6 +142,10 @@ export default new Vuex.Store({
 
   actions: {
 
+    addSpinner(store, payload) {
+        store.commit('SET_SPINNER', payload)
+    },
+
     SET_MENSAGEM_SNACKBAR(store, payload) {
         store.commit('SET_SNACKBAR', true)
         store.commit('SET_TEXT_SNACKBAR', payload)
@@ -100,13 +157,10 @@ export default new Vuex.Store({
 
     LISTAR_DADOS(store) {
         Lancamentos.listar().then(resposta => {
-            console.log(resposta)
             store.commit('ATUALIZA_TABELA', resposta)
         }).catch( () => {
             alert("Não foi possível listar os dados.");
-        }).finally( () => {
-            //  Implementar aqui o spinner
-        })
+        });
 
     },
 
@@ -142,5 +196,6 @@ export default new Vuex.Store({
   },
 
   modules: {
+      store_home
   },
 })

@@ -11,7 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -39,8 +38,7 @@ private static final long serialVersionUID = 1L;
 	@Column(nullable = false)
 	private String categoria;
 	
-	@ManyToOne
-	private Usuario usuario;
+	private Long identificadorUsuario;
 
 	/*	MÉTODOS GET E SET */
 	public Long getId() {
@@ -121,12 +119,12 @@ private static final long serialVersionUID = 1L;
 		this.categoria = categoria;
 	}
 
-	public Usuario getUsuario() {
-		return usuario;
+	public Long getIdentificadorUsuario() {
+		return identificadorUsuario;
 	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
+	
+	public void setIdentificadorUsuario(Long identificadorUsuario) {
+		this.identificadorUsuario = identificadorUsuario;
 	}
 	
 	public String getTipo() {

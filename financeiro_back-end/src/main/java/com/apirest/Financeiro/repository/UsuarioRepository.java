@@ -8,5 +8,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 	
 	//	Método do Spring Data responsável por buscar um único usuário por id.
 	Usuario findById(long id);
+	
+	Usuario findByEmail(String email);
 
 }

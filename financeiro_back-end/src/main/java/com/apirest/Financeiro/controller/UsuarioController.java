@@ -1,14 +1,12 @@
 package com.apirest.Financeiro.controller;
 
-import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,24 +22,16 @@ public class UsuarioController {
 	@Autowired
 	UsuarioRepository usuarioRepository;
 	
-	//	MÉTODO NÃO NECESSÁRIO
-	@GetMapping("/usuarios")
-	public List<Usuario> ListarUsuarios() {
-		return usuarioRepository.findAll();
-	}
-	
-	@GetMapping("/usuario/{id}")
-	public Usuario ListarUsuarioId(@PathVariable(value="id") long id) {
-		return usuarioRepository.findById(id);
-	}
-	
 	@PostMapping("/usuario")
 	public void salvarUsuario(@RequestBody Usuario usuario) {
-		usuarioRepository.save(usuario);
-	}
-	
-	@PutMapping("/usuario")
-	public void atualizarUsuario(@RequestBody Usuario usuario) {
+		
+		//	SENHA CRIPTOGRAFADA
+		usuario.setSenha(new BCryptPasswordEncoder().encode(usuario.getSenha()));
+		
+		//	DATA ATUAL DO SISTEMA
+		LocalDate dataCadastro = LocalDate.now();
+		usuario.setDataCadastro(dataCadastro);
+		
 		usuarioRepository.save(usuario);
 	}
 	

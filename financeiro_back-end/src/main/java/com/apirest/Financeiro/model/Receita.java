@@ -11,7 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -36,8 +35,8 @@ public class Receita implements Serializable {
 	@Column(nullable = false)
 	private String categoria;
 	
-	@ManyToOne
-	private Usuario usuario;
+//	@ManyToOne
+	private Long identificadorUsuario;
 
 	/*	MÉTODOS GET E SET */
 	public Long getId() {
@@ -110,12 +109,12 @@ public class Receita implements Serializable {
 		this.categoria = categoria;
 	}
 
-	public Usuario getUsuario() {
-		return usuario;
+	public Long getIdentificadorUsuario() {
+		return identificadorUsuario;
 	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
+	
+	public void setIdentificadorUsuario(Long identificadorUsuario) {
+		this.identificadorUsuario = identificadorUsuario;
 	}
 	
 	public String getTipo() {

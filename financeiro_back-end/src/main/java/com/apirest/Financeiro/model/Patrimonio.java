@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -28,8 +27,7 @@ public class Patrimonio {
 	@Column(nullable = false)
 	private int tipo;
 	
-	@ManyToOne
-	private Usuario usuario;
+	private Long identificadorUsuario;
 	
 	public Long getId() {
 		return id;
@@ -63,12 +61,12 @@ public class Patrimonio {
 		this.tipo = tipo;
 	}
 	
-	public Usuario getUsuario() {
-		return usuario;
+	public Long getIdentificadorUsuario() {
+		return identificadorUsuario;
 	}
 	
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
+	public void setIdentificadorUsuario(Long identificadorUsuario) {
+		this.identificadorUsuario = identificadorUsuario;
 	}
 
 }

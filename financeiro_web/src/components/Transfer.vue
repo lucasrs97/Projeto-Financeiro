@@ -154,6 +154,7 @@ export default {
     data:() => {
         return {
             patrimonio: {
+                identificadorUsuario: '',
                 valor: '',
                 data: new Date,
             }
@@ -212,13 +213,15 @@ export default {
     methods: {
 
         apenasNumeros: function (event) {
-            if ((event.charCode >= 48 && event.charCode <= 57) || (event.keyCode == 44)) {
-                console.log('é válido')
+            if (! (event.charCode >= 48 && event.charCode <= 57) || (event.keyCode == 44)) {
+                console.log('INválido')
             } 
             
         },
 
         guardarDinheiro() {
+
+            this.patrimonio.identificadorUsuario = this.$store.state.usuarioLogado.id;
 
             let valorSemFormatacao = this.retiraFormatacao(this.patrimonio.valor)
             this.patrimonio.valor = valorSemFormatacao
@@ -231,12 +234,15 @@ export default {
                 alert("Erro ao tentar guardar o Patrimônio.")
             }).finally( () => {
                 this.CLOSE_MODAL_GUARDAR()
+                this.listar_dados_home()
             })
         },
 
         resgatarDinheiro() {
 
             this.$v.$touch()
+
+            this.patrimonio.identificadorUsuario = this.$store.state.usuarioLogado.id;
 
             let valorSemFormatacao = this.retiraFormatacao(this.patrimonio.valor)
             this.patrimonio.valor = valorSemFormatacao
@@ -249,6 +255,7 @@ export default {
                 alert("Erro ao tentar resgatar o Patrimônio.")
             }).finally( () => {
                 this.CLOSE_MODAL_RESGATAR()
+                this.listar_dados_home()
             })
         },
 
@@ -281,6 +288,7 @@ export default {
             'SET_MENSAGEM_SNACKBAR',
             'RESET_SNACKBAR'
         ]),
+        ...mapActions('store_home', ['listar_dados_home']),
 
     }
 }

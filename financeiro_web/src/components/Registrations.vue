@@ -156,7 +156,7 @@ export default {
             descricao: '',
             categoria: '',
 
-            usuario: null,
+            identificadorUsuario: '',
             id: null
         },
 
@@ -235,7 +235,7 @@ export default {
 
             if(vm.isUpdate == true) {
                 vm.cadastros.id = this.$store.state.cadastro.id;
-                vm.cadastros.usuario = this.$store.state.cadastro.usuario;
+                vm.cadastros.identificadorUsuario = this.$store.state.cadastro.usuario;
                 vm.cadastros.valor = this.$store.state.cadastro.valorFormatado;
                 
                 //  SE FOR UMA ALTERAÇÃO, PEGA A DATA DO REGISTRO NA STORE
@@ -246,7 +246,7 @@ export default {
 
             } else if (vm.isUpdate == false) {
                 vm.cadastros.id = null
-                vm.cadastros.usuario = null
+                vm.cadastros.identificadorUsuario = null
                 vm.cadastros.valor = ''
 
                 //  SE FOR UMA INCLUSÃO, PEGA A DATA ATUAL DO SISTEMA
@@ -310,8 +310,10 @@ export default {
 
         ...mapActions([
             'LISTAR_DADOS',
+            'listar_dados_home',
             'SET_MENSAGEM_SNACKBAR'
         ]),
+        ...mapActions('store_home', ['listar_dados_home']),
 
         formatDate (date) {
         if (!date) return null
@@ -333,6 +335,7 @@ export default {
             if (!this.$v.$invalid) {
                 
                 this.cadastros.data = this.parseDate(this.computedDateFormatted);
+                this.cadastros.identificadorUsuario = this.$store.state.usuarioLogado.id;
 
                 // Retira o "R$ " da String formatada.
                 // Retira todos os pontos da String formatada.
@@ -355,6 +358,7 @@ export default {
                     }).finally( () => {
                         this.CLOSE_MODAL()
                         this.LISTAR_DADOS()
+                        this.listar_dados_home()
                     })
 
                 } 
@@ -374,6 +378,7 @@ export default {
                     }).finally( () => {
                         this.CLOSE_MODAL()
                         this.LISTAR_DADOS()
+                        this.listar_dados_home()
                     })
                 }
 
@@ -399,6 +404,7 @@ export default {
                     this.deletarRegistro = false
                     this.CLOSE_MODAL()
                     this.LISTAR_DADOS()
+                    this.listar_dados_home()
 
                 })
 
@@ -416,6 +422,7 @@ export default {
                     this.deletarRegistro = false
                     this.CLOSE_MODAL()
                     this.LISTAR_DADOS()
+                    this.listar_dados_home()
 
                 })
             }
