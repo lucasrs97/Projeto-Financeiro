@@ -11,8 +11,8 @@
                     <v-list-item two-line>
                         <v-list-item-avatar>
                             <v-avatar color="indigo" size="42" >
-                            <span class="white--text"> {{ letraUsuario }} </span>
-                        </v-avatar>
+                                <span class="white--text"> {{ letraUsuario }} </span>
+                            </v-avatar>
                         </v-list-item-avatar>
 
                         <v-list-item-content>
@@ -59,6 +59,8 @@
                     <Registrations />
 
                     <Transfer />
+
+                    <EditUser />
                     <!-- MODAL -->
 
                     <v-divider></v-divider>
@@ -91,9 +93,9 @@
             </v-navigation-drawer>
         
             <v-app-bar
-            app
-            color="indigo darken-2"
-            dark
+                app
+                color="indigo darken-2"
+                dark
             >
                 <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
@@ -109,7 +111,7 @@
                     <template v-slot:activator="{ on, attrs }">
                         <span v-bind="attrs" v-on="on">
                             <v-icon>mdi-account</v-icon>
-                            Olá, {{ nomeUsuario }}!
+                            Olá, {{ nomeUsuario }}
                             <v-icon>mdi-chevron-down</v-icon>
                         </span>
                         
@@ -160,6 +162,7 @@
 <script>
 import Registrations from '../components/Registrations'
 import Transfer from '../components/Transfer'
+import EditUser from '../components/EditUser'
 
 import { mapActions, mapMutations } from 'vuex'
 
@@ -167,7 +170,7 @@ export default {
     name: 'App',
 
     components: {
-        Registrations, Transfer
+        Registrations, Transfer, EditUser
     },
 
     data: () => ({
@@ -216,11 +219,18 @@ export default {
         },
 
         dataCadastro() {
-            let data = this.$store.state.usuarioLogado.data
-            let ano = data.substring(0, 4)
-            let mes = data.substring(5, 7)
+            let data = this.$store.state.usuarioLogado.dataCadastro
+
+            if(data != null) {
+                let ano = data.substring(0, 4)
+                let mes = data.substring(5, 7)
             
-            return mes + "/" + ano
+                return mes + "/" + ano
+            } else {
+                return data
+            }
+
+            
         }
     },
 
@@ -229,11 +239,11 @@ export default {
             this.$router.push(
                 {name: where} 
         ).catch(erro => {
-            if(erro.name != "NavigationDuplicated") {
-                throw erro;
-            }
-        })
-    },
+                if(erro.name != "NavigationDuplicated") {
+                    throw erro;
+                }
+            })
+        },
 
     abrirModal(index) {
         if(index == 0) {
@@ -247,16 +257,20 @@ export default {
 
     abrirOpcoes(index) {
         if(index == 0) {
-            alert('Editar Perfil')
+            this.OPEN_MODAL_EDIT_USER()
         } else if(index == 1) {
             alert('Configurações')
         } else if(index == 2) {
-            
-            this.SET_STATUS_AUTENTICACAO(false)
-            
-            //this.addSpinner(true)
 
-            this.navigateTo('login')
+            this.addSpinner(true)
+
+            setTimeout(() => {
+                this.addSpinner(false)
+                this.SET_STATUS_AUTENTICACAO(false)
+                this.$router.go() // Recarrega a página, redefinindo o estado do Vuex
+                this.navigateTo('login')
+            }, 1000);
+
         }
     },
 
@@ -267,6 +281,7 @@ export default {
 
     ...mapMutations([
         'SET_STATUS_AUTENTICACAO',
+        'OPEN_MODAL_EDIT_USER'
     ]),
 
   }

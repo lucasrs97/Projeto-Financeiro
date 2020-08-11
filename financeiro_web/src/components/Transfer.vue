@@ -60,16 +60,22 @@
                                         <v-row>
                                             <v-col >
                                                 <v-text-field
-                                                    v-model.lazy="patrimonio.valor"
+                                                    v-model="valorFormatado"
                                                     @change="formatarValor"
+                                                    @keypress="bloqueiaNaoNumeros"
+                                                    
                                                     prepend-icon="R$"
                                                     reverse 
                                                     rounded
                                                     class="valorTransfere"
+
+                                                    :error-messages="valorErrors"
+                                                    @input="$v.patrimonio.valor.$touch()"
+                                                    @blur="$v.patrimonio.valor.$touch()"
                                                 ></v-text-field>
                                             </v-col>
                                             <v-col class="botaoTransfere">
-                                                <v-btn class="mx-2" dark color="black" @click="guardarDinheiro()">
+                                                <v-btn class="mx-2" dark color="black" @click="guardarDinheiro">
                                                     Aumentar Patrimônio
                                                 </v-btn>
                                             </v-col>
@@ -108,8 +114,10 @@
                                         <v-row>
                                             <v-col cols="6">
                                                 <v-text-field
-                                                    v-model.lazy="patrimonio.valor"
+                                                    v-model="valorFormatado"
                                                     @change="formatarValor"
+                                                    @keypress="bloqueiaNaoNumeros"
+
                                                     prepend-icon="R$"
                                                     reverse 
                                                     rounded
@@ -118,8 +126,6 @@
                                                     :error-messages="valorErrors"
                                                     @input="$v.patrimonio.valor.$touch()"
                                                     @blur="$v.patrimonio.valor.$touch()"
-
-                                                    @keypress="apenasNumeros"
                                                 ></v-text-field>
                                             </v-col>
                                             <v-col cols="5" >
@@ -146,7 +152,7 @@ import Patrimonio from '../services/patrimonio'
 
 import { mapMutations, mapActions } from 'vuex'
 
-import { required, numeric } from 'vuelidate/lib/validators'
+import { required } from 'vuelidate/lib/validators'
 
 export default {
     name: 'Transferência',
@@ -158,18 +164,33 @@ export default {
                 valor: '',
                 data: new Date,
             }
-            
         }
-        
     },
 
     validations: {
         patrimonio: {
-            valor: { required, numeric }
+            valor: { required }
         }
     },
 
     computed: {
+
+        valorFormatado: {
+            get: function() {
+                return this.patrimonio.valor
+            },
+
+            set: function(novoValor) {
+                var valorFormatado = novoValor.replace(/\D/g,'');
+                valorFormatado = (valorFormatado/100).toFixed(2) + '';
+                valorFormatado = valorFormatado.replace(".", ",");
+                valorFormatado = valorFormatado.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+                valorFormatado = valorFormatado.replace(/(\d)(\d{3}),/g, "$1.$2,");
+                this.patrimonio.valor = valorFormatado;
+                
+            }
+        },
+
         showModalTransfer() {
             if(this.$store.state.showModalTransferir == true) {
                 return true
@@ -182,7 +203,8 @@ export default {
             var vm = this
 
             if(this.$store.state.showModalGuardar == true) {
-                vm.valor = ''
+                this.$v.$reset();
+                vm.patrimonio.valor = ''
                 return true
             } else {
                 return false
@@ -193,6 +215,7 @@ export default {
             var vm = this
 
             if(this.$store.state.showModalResgatar == true) {
+                this.$v.$reset();
                 vm.patrimonio.valor = ''
                 return true
             } else {
@@ -205,58 +228,17 @@ export default {
             if (!this.$v.patrimonio.valor.$dirty) 
                 return errors
             
-            !this.$v.patrimonio.valor.required && errors.push('Preencha um valor para resgatar')
+            !this.$v.patrimonio.valor.required && errors.push('Preencha um valor para esta operação.')
                 return errors
         },
     },
 
     methods: {
 
-        apenasNumeros: function (event) {
-            if (! (event.charCode >= 48 && event.charCode <= 57) || (event.keyCode == 44)) {
-                console.log('INválido')
-            } 
-            
-        },
-
-        guardarDinheiro() {
-
-            this.patrimonio.identificadorUsuario = this.$store.state.usuarioLogado.id;
-
-            let valorSemFormatacao = this.retiraFormatacao(this.patrimonio.valor)
-            this.patrimonio.valor = valorSemFormatacao
-
-            Patrimonio.guardar(this.patrimonio).then( () => {
-
-                this.SET_MENSAGEM_SNACKBAR('Patrimônio guardado! Seu patrimônio acumulado agora está maior :)')
-                
-            }).catch( () => {
-                alert("Erro ao tentar guardar o Patrimônio.")
-            }).finally( () => {
-                this.CLOSE_MODAL_GUARDAR()
-                this.listar_dados_home()
-            })
-        },
-
-        resgatarDinheiro() {
-
-            this.$v.$touch()
-
-            this.patrimonio.identificadorUsuario = this.$store.state.usuarioLogado.id;
-
-            let valorSemFormatacao = this.retiraFormatacao(this.patrimonio.valor)
-            this.patrimonio.valor = valorSemFormatacao
-
-            Patrimonio.resgatar(this.patrimonio).then( () => {
-
-                this.SET_MENSAGEM_SNACKBAR('Patrimônio resgatado! O valor agora está disponível no Caixa Mensal :)')
-                
-            }).catch( () => {
-                alert("Erro ao tentar resgatar o Patrimônio.")
-            }).finally( () => {
-                this.CLOSE_MODAL_RESGATAR()
-                this.listar_dados_home()
-            })
+        bloqueiaNaoNumeros() {
+            if(! ((event.charCode >= 48 && event.charCode <= 57) || (event.keyCode == 45 || event.charCode == 46))) {
+                this.patrimonio.valor = ''
+            }
         },
 
         formatarValor() {
@@ -273,6 +255,50 @@ export default {
             valorSemFormatacao = valorSemFormatacao.replace(',','.')
 
             return valorSemFormatacao
+        },
+
+        guardarDinheiro() {
+
+            console.log('chamou')
+
+            this.$v.$touch()
+
+            if(!this.$v.$invalid) {
+                this.patrimonio.identificadorUsuario = this.$store.state.usuarioLogado.id;
+
+                let valorSemFormatacao = this.retiraFormatacao(this.patrimonio.valor)
+                this.patrimonio.valor = valorSemFormatacao
+
+                Patrimonio.guardar(this.patrimonio).then( () => {
+                    this.SET_MENSAGEM_SNACKBAR('Patrimônio guardado! Seu patrimônio acumulado agora está maior.')
+                }).catch( () => {
+                    alert("Erro ao tentar guardar o Patrimônio.")
+                }).finally( () => {
+                    this.CLOSE_MODAL_GUARDAR()
+                    this.listar_dados_home()
+                })
+            }
+        },
+
+        resgatarDinheiro() {
+
+            this.$v.$touch()
+
+            if(!this.$v.$invalid) {
+                this.patrimonio.identificadorUsuario = this.$store.state.usuarioLogado.id;
+
+                let valorSemFormatacao = this.retiraFormatacao(this.patrimonio.valor)
+                this.patrimonio.valor = valorSemFormatacao
+
+                Patrimonio.resgatar(this.patrimonio).then( () => {
+                    this.SET_MENSAGEM_SNACKBAR('Patrimônio resgatado! O valor agora está disponível no Caixa Mensal.')
+                }).catch( () => {
+                    alert("Erro ao tentar resgatar o Patrimônio.")
+                }).finally( () => {
+                    this.CLOSE_MODAL_RESGATAR()
+                    this.listar_dados_home()
+                })
+            }
         },
 
         ...mapMutations([

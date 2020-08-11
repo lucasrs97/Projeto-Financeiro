@@ -12,10 +12,9 @@
             <v-content>
                 <v-container fluid>
                     
-                    
                     <div class="form-cadastro">
-                        <v-col cols="3">
-                            <v-card>
+                        
+                            <v-card width="500px">
                                 <v-card-title class="headline">Login</v-card-title>
                                 <!--<v-card-subtitle>ou entre para controlar seu orçamento.</v-card-subtitle>-->
 
@@ -25,6 +24,7 @@
                                             v-model="login.email"
                                             :error-messages="emailErrors"
                                             label="E-mail"
+                                            :counter="50"
                                             required
                                             @input="$v.login.email.$touch()"
                                             @blur="$v.login.email.$touch()"
@@ -32,31 +32,31 @@
 
                                         <v-text-field
                                             v-model="login.senha"
-
+                                            :error-messages="senhaErrors"
+                                            label="Senha"
+                                            :counter="16"
+                                            required
                                             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                                             :type="showPassword ? 'text' : 'password'"
                                             @click:append="showPassword = !showPassword"
-
-                                            :error-messages="senhaErrors"
-                                            :counter="10"
-                                            label="Senha"
-                                            required
                                             @input="$v.login.senha.$touch()"
                                             @blur="$v.login.senha.$touch()"
                                         ></v-text-field>
 
-                                        <v-card-actions>
-                                            <div class="my-2">
-                                                <v-btn x-large color="success" dark @click="doLogin">Entrar</v-btn>
+                                        <template v-if="exibirMensagemErro">
+                                            <div class="mensagem-erro">
+                                                <span>{{ mensagemErro }}</span>
                                             </div>
-                                        </v-card-actions>
-                                        <div>
+                                        </template>
+
+                                        <div class="actions-form">
+                                            <v-btn color="success" dark @click="doLogin">Entrar</v-btn>
                                             <span class="texto-alteracao-rota" @click="alterarRota('index')">Ainda não possui uma conta? Cadastre-se</span>
                                         </div>
                                     </v-form>
                                 </v-card-text>
                             </v-card>
-                        </v-col> 
+                        
                     </div>
 
                 </v-container>
@@ -81,8 +81,8 @@ export default {
 
     validations: {
         login: {
-            email: { required, email },
-            senha: { required, maxLength: maxLength(16), minLength: minLength(3) },
+            email: { required, email, minLength: minLength(8), maxLength: maxLength(50), },
+            senha: { required, minLength: minLength(6), maxLength: maxLength(16) },
         }
         
     },
@@ -98,10 +98,13 @@ export default {
             nome: '',
             email: '',
             senha: '',
-            data: null
+            dataCadastro: null
         },
 
         showPassword: false,
+
+        exibirMensagemErro: false,
+        mensagemErro: ''
         
     }),
 
@@ -125,28 +128,51 @@ export default {
             this.$v.$touch()
 
             if (!this.$v.$invalid) {
+                /**
+                 * Foi preciso guardar a instância do data, pois o erro agora não é mais uma String
+                 * e sim uma função, na qual é possível acessar o status code da requisição.
+                 * O status code será necessário para exibir a mensagem de erro "genérico" ou erro de "usuário/senha".
+                 * A função de error dentro do catch não reconhece a instância this do data, por isso ela é associada à variável vm.
+                 */
+                var vm = this
+                
+
                 Login.logar(this.login).then( resp => {
 
                     if(resp.status == 200) {
+                        this.usuarioLogado.id               = resp.data.id;
+                        this.usuarioLogado.nome             = resp.data.nome;
+                        this.usuarioLogado.email            = resp.data.email
+                        this.usuarioLogado.senha            = resp.data.senha
+                        this.usuarioLogado.dataCadastro     = resp.data.dataCadastro
+                        this.usuarioLogado.mesesCadastro    = resp.data.quantidadeMesesCadastro
 
-                        console.log(resp)
-
-                        this.usuarioLogado.id = resp.data.id;
-                        this.usuarioLogado.nome = resp.data.nome;
-                        this.usuarioLogado.email = resp.data.email
-                        this.usuarioLogado.senha = resp.data.senha
-                        this.usuarioLogado.data = resp.data.dataCadastro
-                        this.SET_USUARIO_LOGADO(this.usuarioLogado)
+                        this.SET_USUARIO_LOGADO(vm.usuarioLogado)
                         this.SET_STATUS_AUTENTICACAO(true)
 
                         this.alterarRota('home')
-
-                        //setTimeout(() => this.alterarRota('home') , 2000)
-                        
                     }
 
-                }).catch( () => {
-                    alert("Erro ao tentar realizar o login.")
+                }).catch( function(error) {
+                    /**
+                     * A exibição da mensagem de erro é tratada dentro da função error, onde não é possível acessar
+                     * o data através da instância "this", por isso é utilizada a variável vm.
+                     */
+                    if(error.response != undefined) {
+                        if(error.response.status == 401) {
+                            vm.mensagemErro = "Usuário e Senha não conferem."
+                        } else {
+                            vm.mensagemErro = "Erro ao tentar realizar o login."
+                        }
+                    } else {
+                        vm.mensagemErro = "Erro ao tentar realizar o login."
+                    }
+                    vm.exibirMensagemErro = true
+                    setTimeout(() => {
+                        vm.exibirMensagemErro = false
+                    }, 5000);
+
+                    
                 })
             }
         },
@@ -160,9 +186,13 @@ export default {
             if (!this.$v.login.email.$dirty) 
                 return errors
             
-            !this.$v.login.email.email && errors.push('Insira um e-mail válido.')
-            
             !this.$v.login.email.required && errors.push('E-mail é requerido.')
+
+            !this.$v.login.email.minLength && errors.push('Seu e-mail deve ter no mínimo 8 caracteres.')
+
+            !this.$v.login.email.maxLength && errors.push('Seu e-mail deve ter no máximo 50 caracteres.')
+
+            !this.$v.login.email.email && errors.push('Insira um e-mail válido.')
             
             return errors
         },
@@ -172,12 +202,12 @@ export default {
             
             if (!this.$v.login.senha.$dirty) 
                 return errors
+
+            !this.$v.login.senha.required && errors.push('Senha é requerida.')
             
             !this.$v.login.senha.minLength && errors.push('Sua senha deve ter no mínimo 6 caracteres.')
 
             !this.$v.login.senha.maxLength && errors.push('Sua senha deve ter no máximo 16 caracteres.')
-            
-            !this.$v.login.senha.required && errors.push('Senha é requerida.')
             
             return errors
         },
@@ -190,12 +220,31 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+    }
 
-        height: 70vh;
+    .texto-alteracao-rota {
+        margin-top: 10px;
     }
 
     .texto-alteracao-rota:hover {
         cursor: pointer;
         color: black;
+    }
+
+    .actions-form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .mensagem-erro {
+        display: flex;
+        justify-content: center;
+
+        margin-bottom: 10px;
+
+        color: red;
+        font-weight: bold;
     }
 </style>

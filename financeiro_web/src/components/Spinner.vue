@@ -49,6 +49,6 @@ export default {
         filter:alpha(opacity=50);
         opacity: 0.5;
         -moz-opacity:0.5;
-        -webkit-opacity:0.6;
+        -webkit-opacity:0.8;
     }
 </style>

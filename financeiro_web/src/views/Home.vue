@@ -1,174 +1,143 @@
 <template>
-    <div>
-        <v-container class="myContainer">
-            
-            <v-row dense>
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
-                            <v-card color="#385F73" dark class="mycard">
-                                <v-card-title class="headline"> {{ totalReceitasStore }} </v-card-title>
-                                <v-card-subtitle>Total de Receitas</v-card-subtitle>
-                                <v-card-actions>
-                                    <v-btn text>VER MAIS</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </v-col>
-                    </template>
-                    <span>Todas as receitas inseridas desde seu cadastro no sistema.</span>
-                </v-tooltip>
+    <v-container>
+        
+        <v-row>
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
+                        <v-card color="#385F73" dark class="mycard">
+                            <v-card-title class="headline"> {{ totalReceitasStore }} </v-card-title>
+                            <v-card-subtitle>Total de Receitas</v-card-subtitle>
 
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
-                            <v-card color="#385F73" dark class="mycard">
-                                <v-card-title class="headline"> {{ totalDespesasStore }} </v-card-title>
-                                <v-card-subtitle>Total de Despesas</v-card-subtitle>
-                                <v-card-actions>
-                                    <v-btn text>VER MAIS</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </v-col>
-                    </template>
-                    <span>Todas as despesas inseridas desde seu cadastro no sistema.</span>
-                </v-tooltip>
+                            <v-card-text class="icon-card">
+                                <v-icon large>mdi-arrow-up-bold-box-outline</v-icon>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </template>
+                <span>Todas as receitas inseridas.</span>
+            </v-tooltip>
 
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
-                            <v-card color="#385F73" dark class="mycard">
-                                <v-card-title class="headline"> {{ caixaMensalStore }} </v-card-title>
-                                <v-card-subtitle>Caixa Mensal</v-card-subtitle>
-                                <v-card-actions>
-                                    <v-btn text>VER MAIS</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </v-col>
-                    </template>
-                    <span>É o seu dinheiro recorrente no mês atual.</span>
-                </v-tooltip>
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
+                        <v-card color="#385F73" dark class="mycard">
+                            <v-card-title class="headline"> {{ totalDespesasStore }} </v-card-title>
+                            <v-card-subtitle>Total de Despesas</v-card-subtitle>
+                            
+                            <v-card-text class="icon-card">
+                                <v-icon large>mdi-arrow-down-bold-box-outline</v-icon>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </template>
+                <span>Todas as despesas inseridas.</span>
+            </v-tooltip>
 
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
-                            <v-card color="#385F73" dark class="mycard">
-                                <v-card-title class="headline"> {{ totalPatrimonioStore }} </v-card-title>
-                                <v-card-subtitle>Patrimônio Acumulado</v-card-subtitle>
-                                <v-card-actions>
-                                    <v-btn text>VER MAIS</v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </v-col>
-                    </template>
-                    <span>É o total acumulado para o seu patrimônio em 8 meses de cadastro no sistema.</span>
-                </v-tooltip>
-            </v-row>
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
+                        <v-card color="#385F73" dark class="mycard">
+                            <v-card-title class="headline"> {{ caixaMensalStore }} </v-card-title>
+                            <v-card-subtitle>Caixa Mensal</v-card-subtitle>
+                            
+                            <v-card-text class="icon-card">
+                                <v-icon large>mdi-currency-usd</v-icon>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </template>
+                <span>É o seu dinheiro recorrente no mês atual.</span>
+            </v-tooltip>
 
-            <v-row style="height: 500px;">
-                <v-col>
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                    <v-col cols="12" sm="6" lg="3" v-bind="attrs" v-on="on">
+                        <v-card color="#385F73" dark class="mycard">
+                            <v-card-title class="headline"> {{ totalPatrimonioStore }} </v-card-title>
+                            <v-card-subtitle>Patrimônio Acumulado</v-card-subtitle>
+                            
+                            <v-card-text class="icon-card">
+                                <v-icon large>mdi-finance</v-icon>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </template>
+                <span>É o total acumulado para o seu patrimônio.</span>
+            </v-tooltip>
+        </v-row>
+
+        <v-row >
+            <v-col>
+                <div class="grafico">
                     <ChartLine v-if="loaded" :chartData="fillDataPatrimonio" :options="optionsLine" />
-                </v-col>
-            </v-row>
+                </div>
+            </v-col>
+        </v-row>
 
-            <v-row>
-                <v-col cols="12" sm="6" class="teste-despesa">
-                    <div class="grafico-rosquinha">
-                        <ChartDoughnut v-if="loaded"
-                            :chartData="fillDataDespesas"
-                            :options="optionsDoughnutDespesas" />
+        <v-row>
+            <v-col cols="12" md="6">
+                <div class="grafico grafico-rosquinha">
+                    <ChartDoughnut v-if="loaded"
+                        :chartData="fillDataDespesas"
+                        :options="optionsDoughnutDespesas" />
+                </div>
+            </v-col>
+            <v-col cols="12" md="6">
+                <div class="grafico grafico-rosquinha">
+                    <ChartDoughnut v-if="loaded"
+                        :chartData="fillDataReceitas"
+                        :options="optionsDoughnutReceitas" />
+                </div>
+            </v-col>
+        </v-row>
 
-                        <!--<div class="texto-grafico-rosquinha">
-                            <span>
-                                {{ despesasTeste }}
-                            </span>
-                            <h5>Total</h5>
-                        </div>-->
-                    </div>
-                </v-col>
-                <v-col cols="12" sm="6">
-                    <div class="grafico-rosquinha">
-                        <ChartDoughnut v-if="loaded"
-                            :chartData="fillDataReceitas"
-                            :options="optionsDoughnutReceitas" />
+        <v-row >
+            <v-col cols="12" md="6">
+                <div class="grafico">
+                    <ChartBar v-if="loaded" :chartData="fillDataReceitaDespesa" :options="optionsBarReceitaDespesa" />
+                </div>
+            </v-col>
+            <v-col cols="12" md="6">
+                <div class="grafico">
+                    <ChartBar v-if="loaded" :chartData="fillDataReceitaPatrimonio" :options="optionsBarReceitaPatrimonio" />
+                </div>
+            </v-col>
+        </v-row>
 
-                        <!--<div class="texto-grafico-rosquinha">
-                            <span>
-                                {{ totalReceitasStore }}
-                            </span>
-                            <h5>Total</h5>
-                        </div>-->
-                    </div>
-                </v-col>
-            </v-row>
-
-            <v-row>
-                <v-col offset-md="11">
-                    <v-speed-dial
-                        v-model="fab"
-                        direction="top"
-                        transition="slide-y-reverse-transition"
+        <v-row>
+            <v-col>
+                <div class="botao-scroll">
+                    <v-btn
+                        color="blue darken-2"
+                        dark
+                        fab
+                        @click="scrollToTop"
                     >
-                        <template v-slot:activator>
-                            <v-btn
-                            v-model="fab"
-                            color="blue darken-2"
-                            dark
-                            fab
-                            >
-                            <v-icon v-if="fab">mdi-close</v-icon>
-                            <v-icon v-else>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
+                        <v-icon>mdi-chevron-up</v-icon>
+                    </v-btn>
+                </div>
+            </v-col>
+        </v-row>
 
-                        <v-btn
-                            fab
-                            dark
-                            small
-                            color="indigo"
-                        >
-                            <v-icon>mdi-chart-line-variant</v-icon>
-                        </v-btn>
-                        
-                        <v-btn
-                            fab
-                            dark
-                            small
-                            color="red"
-                        >
-                            <v-icon>mdi-minus</v-icon>
-                        </v-btn>
-                        
-                        <v-btn
-                            fab
-                            dark
-                            small
-                            color="green"
-                        >
-                            <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                    </v-speed-dial>
-                </v-col>
-            </v-row>
-
-        </v-container>
-    </div>
+    </v-container>
 </template>
 
 <script>
 
 import ChartDoughnut from '../components/ChartDoughnut'
 import ChartLine from '../components/ChartLine'
+import ChartBar from '../components/ChartBar'
 
 import { mapActions } from 'vuex'
 
 export default {
     name: 'Home',
 
-    components: { ChartDoughnut, /*ChartBar,*/ ChartLine },
+    components: { ChartDoughnut, ChartBar, ChartLine },
 
     data: () => {
         return {
-            fab: false,
 
             /* DATA */
             date: new Date().toISOString().substr(0, 7),
@@ -204,8 +173,8 @@ export default {
                 tooltips: {
                     callbacks: {
                         label: function(tooltipItem, data) {
-                        //  Formata o valor patrimonial no gráfico
-                        return Number( data['datasets'][0]['data'][tooltipItem['index']] ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            //  Formata o valor patrimonial no gráfico
+                            return Number( data['datasets'][0]['data'][tooltipItem['index']] ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                         }
                     }
                 }
@@ -225,7 +194,7 @@ export default {
                     animateScale: false
                 },
                 
-                cutoutPercentage: 60,
+                cutoutPercentage: 0,
                 responsive: true,
                 maintainAspectRatio: false,
 
@@ -237,7 +206,7 @@ export default {
                 tooltips: {
                     callbacks: {
                         title: function() {
-                            return "Percentual gasto na categoria"
+                            return "Percentual recebido na categoria"
                         },
                         
                         label: function(tooltipItem, data) {
@@ -262,7 +231,7 @@ export default {
                     animateScale: false
                 },
 
-                cutoutPercentage: 60,
+                cutoutPercentage: 0,
                 responsive: true,
                 maintainAspectRatio: false,
 
@@ -289,7 +258,111 @@ export default {
                     }
                 }
             },
-            //  OPÇÕES DO GRÁFICO DE PERCENTUAL DE RECEITAS
+            //  OPÇÕES DO GRÁFICO DE PERCENTUAL DE DESPESAS
+
+            //  OPÇÕES DO GRÁFICO DE RECEITA X DESPESA
+            optionsBarReceitaDespesa: {
+                title: {
+                    display: true,
+                    fontSize: 22,
+                    fontColor: 'black',
+                    text: 'Balanço Receitas x Despesas',
+                },
+
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                beginAtZero: true,
+                                fontSize: 12,
+                                callback: function(value) {
+                                    // Acrescenta "R$" na label do eixo Y
+                                    return 'R$ ' + value;
+                                }
+                            },
+                        }
+                    ]
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                onHover: (event, chartElement) => {
+                    event.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                },
+
+                // ALTERA A VISUALIZAÇÃO DA INFORMAÇÃO NO GRÁFICO
+                tooltips: {
+                    callbacks: {
+                        //  Formata o valor do Balanço Receita x Despesa
+                        label: function(tooltipItem, data) {
+                            /*console.log('tooltipItem')
+                            console.log(tooltipItem)
+                            console.log('data')
+                            console.log(data)
+
+                            console.log('teste')
+                            console.log(tooltipItem['datasetIndex'])*/
+                            
+                            //  Verifica em qual dataset o mouse está posicionado para formatá-lo (essa eu consegui sem procurar no stackoverflow).
+                            if(tooltipItem['datasetIndex'] == 0) {
+                                return Number( data['datasets'][0]['data'][tooltipItem['index']] ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            } else {
+                                return Number( data['datasets'][1]['data'][tooltipItem['index']] ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            }
+
+                            
+                        }
+                    }
+                }
+            },
+            //  OPÇÕES DO GRÁFICO DE RECEITA X DESPESA
+
+            //  OPÇÕES DO GRÁFICO DE RECEITA X PATRIMÔNIO
+            optionsBarReceitaPatrimonio: {
+                title: {
+                    display: true,
+                    fontSize: 22,
+                    fontColor: 'black',
+                    text: 'Balanço Receitas x Patrimônio',
+                },
+
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                beginAtZero: true,
+                                fontSize: 12,
+                                callback: function(value) {
+                                    // Acrescenta "R$" na label do eixo Y
+                                    return 'R$ ' + value;
+                                }
+                            },
+                        }
+                    ]
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                onHover: (event, chartElement) => {
+                    event.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                },
+
+                // ALTERA A VISUALIZAÇÃO DA INFORMAÇÃO NO GRÁFICO
+                tooltips: {
+                    callbacks: {
+                        //  Formata o valor do Balanço Receita x Despesa
+                        label: function(tooltipItem, data) {
+                            //  Verifica em qual dataset o mouse está posicionado para formatá-lo.
+                            if(tooltipItem['datasetIndex'] == 0) {
+                                return Number( data['datasets'][0]['data'][tooltipItem['index']] ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            } else {
+                                return Number( data['datasets'][1]['data'][tooltipItem['index']] ).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            }
+
+                            
+                        }
+                    }
+                }
+            },
+            //  OPÇÕES DO GRÁFICO DE RECEITA X PATRIMÔNIO
         }
     },
 
@@ -311,8 +384,8 @@ export default {
             return this.$store.state.store_home.totalPatrimonio
         },
 
-        patrimonioLabels() {
-            return this.$store.state.store_home.mesesEvolucaoPatrimonial;
+        mesesGraficos() {
+            return this.$store.state.store_home.mesesGraficos;
         },
 
         patrimonioDatasets() {
@@ -322,10 +395,10 @@ export default {
         //  RETORNA OS DADOS NECESSÁRIOS PARA PASSAGEM COMO PROPS AO COMPONENTE DO GRÁFICO DE EVOLUÇÃO PATRIMONIAL
         fillDataPatrimonio() {
             return {
-                labels: this.patrimonioLabels,
+                labels: this.mesesGraficos,
                 datasets: [
                     {
-                        label: 'Evolução Patrimonial em R$',
+                        label: 'Evolução Patrimonial',
                         backgroundColor:      "rgba(46,95,255,0.1)",
                         borderColor:          "rgba(46,95,255,0.7)",
                         pointBackgroundColor: "rgba(46,95,255,1)",
@@ -371,13 +444,71 @@ export default {
                     }
                 ],
             }
-        }
+        },
+
+        //  RETORNA OS DADOS NECESSÁRIOS PARA PASSAGEM COMO PROPS AO COMPONENTE DO GRÁFICO DE RECEITA X DESPESA
+        fillDataReceitaDespesa() {
+            return {
+                labels: this.mesesGraficos,
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        backgroundColor: ['#7EC871', '#7EC871', '#7EC871', '#7EC871'],
+                        data: this.valoresBalancoReceitas,
+                    },
+                    {
+                        label: 'Despesas',
+                        backgroundColor: ['#F8877A', '#F8877A', '#F8877A', '#F8877A'],
+                        data: this.valoresBalancoDespesas,
+                    },
+                ]
+            }
+        },
+
+        valoresBalancoReceitas() {
+            return this.$store.state.store_home.valoresBalancoReceita
+        },
+
+        valoresBalancoDespesas() {
+            return this.$store.state.store_home.valoresBalancoDespesa
+        },
+
+        valoresBalancoPatrimonio() {
+            return this.$store.state.store_home.valoresBalancoPatrimonio
+        },
+
+        //  RETORNA OS DADOS NECESSÁRIOS PARA PASSAGEM COMO PROPS AO COMPONENTE DO GRÁFICO DE RECEITA X PATRIMÔNIO
+        fillDataReceitaPatrimonio() {
+            return {
+                labels: this.mesesGraficos,
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        backgroundColor: ['#7EC871', '#7EC871', '#7EC871', '#7EC871'],
+                        data: this.valoresBalancoReceitas,
+                    },
+                    {
+                        label: 'Patrimônio',
+                        backgroundColor: ['#6E95CF', '#6E95CF', '#6E95CF', '#6E95CF'],
+                        data: this.valoresBalancoPatrimonio
+                    },
+                ]
+            }
+        },
     },
 
     methods: {
 
         //  MAPEAMENTO DA CHAMADA AO MÉTODO LISTAR 
         ...mapActions('store_home', ['listar_dados_home']),
+
+        scrollToTop () {
+            window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+            });
+        }
 
     },
 
@@ -400,14 +531,16 @@ export default {
 
 <style scoped>
     .mycard:hover {
-        transform: scale(1.025);
-        transition: all 400ms ease-in;
+        transform: scale(1.030);
+        transition: all 200ms ease-in;
         cursor: pointer;
         opacity: 0.9;
     }
 
-    .myContainer {
-        background-color: oldlace;
+    .grafico {
+        background-color: white;
+        
+        padding: 50px;
     }
 
     .grafico-rosquinha  {
@@ -416,17 +549,14 @@ export default {
         justify-content: center;
     }
 
-    .texto-grafico-rosquinha {
+    .botao-scroll {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        margin-top: 100px
+        flex-direction: row-reverse;
     }
 
-    .texto-grafico-rosquinha span, h5 {
-        font-size: 22px;
+    .icon-card {
+        display: flex;
+        flex-direction: row-reverse;
     }
 
 </style>

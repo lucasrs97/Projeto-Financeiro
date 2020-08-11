@@ -4,9 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,9 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.apirest.Financeiro.model.Despesa;
 import com.apirest.Financeiro.model.Patrimonio;
-import com.apirest.Financeiro.model.Receita;
+import com.apirest.Financeiro.model.Usuario;
 import com.apirest.Financeiro.repository.DespesaRepository;
 import com.apirest.Financeiro.repository.PatrimonioRepository;
 import com.apirest.Financeiro.repository.ReceitaRepository;
@@ -41,8 +39,17 @@ public class HomeController {
 	@Autowired
 	UsuarioRepository usuarioRepository;
 	
-	private Long retornaIdUsuarioLogado(String email) {
-		return usuarioRepository.findByEmail(email).getId();
+	private Long retornaIdUsuarioLogado() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String email;    
+		if (principal instanceof UserDetails) {
+			email = ((UserDetails)principal).getUsername();
+		} else {
+			email = principal.toString();
+		}
+		Long id = usuarioRepository.findByEmail(email).getId();
+		
+		return id;
 	}
 	
 	
@@ -53,34 +60,29 @@ public class HomeController {
 		
 		List<BigDecimal> dadosCard = recuperaDadosCard();
 		
-		List<String> mesesGraficoBarra = listarMesesGraficoBarra();
-		List<BigDecimal> valoresGraficoBarra = listarValoresGraficoBarra();
+		List<String> mesesGraficos = listarMesesGraficos();
 		
-		mesesGraficoBarra.add("08/2020");
-		valoresGraficoBarra.add(new BigDecimal(1220));
+		List<BigDecimal> valoresGraficoEvolucaoPatrimonial = listarValoresEvolucaoPatrimonial();
 		
-		mesesGraficoBarra.add("09/2020");
-		valoresGraficoBarra.add(new BigDecimal(3450));
+		List<BigDecimal> porcetagemReceitasGraficoDoughnut = listarPercentuaisReceitas();
+		List<BigDecimal> porcetagemDespesasGraficoDoughnut = listarPercentuaisDespesas();
 		
-		mesesGraficoBarra.add("10/2020");
-		valoresGraficoBarra.add(new BigDecimal(5430));
-		
-		mesesGraficoBarra.add("11/2020");
-		valoresGraficoBarra.add(new BigDecimal(4100));
-		
-		mesesGraficoBarra.add("12/2020");
-		valoresGraficoBarra.add(new BigDecimal(6000));
-		
-		List<BigDecimal> porcetagemReceitas = listarPercentuaisReceitasGraficoRosquinha();
-		List<BigDecimal> porcetagemDespesas = listarPercentuaisDespesasGraficoRosquinha();
+		List<BigDecimal> valoresGraficoBalancoReceita = listarBalancoReceitas();
+		List<BigDecimal> valoresGraficoBalancoDespesa = listarBalancoDespesas();
+		List<BigDecimal> valoresGraficoBalancoPatrimonio = listarBalancoPatrimonio();
 		
 		dadosHome.add(dadosCard);
 		
-		dadosHome.add(mesesGraficoBarra);
-		dadosHome.add(valoresGraficoBarra);
+		dadosHome.add(mesesGraficos);
 		
-		dadosHome.add(porcetagemReceitas);
-		dadosHome.add(porcetagemDespesas);
+		dadosHome.add(valoresGraficoEvolucaoPatrimonial);
+		
+		dadosHome.add(porcetagemReceitasGraficoDoughnut);
+		dadosHome.add(porcetagemDespesasGraficoDoughnut);
+		
+		dadosHome.add(valoresGraficoBalancoReceita);
+		dadosHome.add(valoresGraficoBalancoDespesa);
+		dadosHome.add(valoresGraficoBalancoPatrimonio);
 		
 		return dadosHome;
 	}
@@ -88,31 +90,14 @@ public class HomeController {
 	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DOS CARDS	*/
 	public List<BigDecimal> recuperaDadosCard() {
 		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;    
-		if (principal instanceof UserDetails) {
-			email = ((UserDetails)principal).getUsername();
-		} else {
-			email = principal.toString();
-		}
-		Long id = retornaIdUsuarioLogado(email);
+		Long id = retornaIdUsuarioLogado();
 		
 		//	RECEITAS
-		List<Receita> receitas = receitaRepository.listarReceitasUsuario(id);
-		
-		BigDecimal totalReceitas = new BigDecimal(0);
-		for (Receita receita : receitas) {
-			totalReceitas = totalReceitas.add(receita.getValor());
-		}
+		BigDecimal totalReceitas = receitaRepository.totalReceitas(id);
 		//	RECEITAS
 		
 		//	DESPESAS
-		List<Despesa> despesas = despesaRepository.listarDespesasUsuario(id);
-		
-		BigDecimal totalDespesas = new BigDecimal(0);
-		for (Despesa despesa : despesas) {
-			totalDespesas = totalDespesas.add(despesa.getValor());
-		}
+		BigDecimal totalDespesas = despesaRepository.totalDespesas(id);
 		//	DESPESAS
 		
 		//	PATRIMÔNIO
@@ -146,19 +131,47 @@ public class HomeController {
 	}
 	/*	FIM		-	RECUPERAÇÃO DE DADOS DOS CARDS	*/
 	
-	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE BARRAS	*/
-	public List<BigDecimal> listarValoresGraficoBarra() {
+	/*	INÍCIO	-	RECUPERAÇÃO DOS MESES DE CADASTRO PARA OS GRÁFICOS	*/
+	public List<String> listarMesesGraficos() {
 		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;    
-		if (principal instanceof UserDetails) {
-			email = ((UserDetails)principal).getUsername();
+		Long id = retornaIdUsuarioLogado();
+		
+		Optional<Usuario> optUsuario = usuarioRepository.findById(id);
+		if(optUsuario.isPresent()) {
+			Usuario usuario = optUsuario.get();
+			
+			LocalDate mesAnoCadastro = usuario.getDataCadastro();
+			
+			int mes = mesAnoCadastro.getMonth().getValue();
+			int ano = mesAnoCadastro.getYear();
+			
+			List<String> arrayMesAno = new ArrayList<String>();
+			
+			while(mes <= LocalDate.now().getMonth().getValue() && ano <= LocalDate.now().getYear()) {
+				
+				if(mes == 10 || mes == 11 || mes == 12) {
+					arrayMesAno.add(mes + "/" + ano);
+				} else {
+					arrayMesAno.add("0" + mes + "/" + ano);
+				}
+				
+				mes = mes + 1;
+			}	
+			return arrayMesAno;
+		
 		} else {
-			email = principal.toString();
+			
+			return null;
 		}
-		Long id = retornaIdUsuarioLogado(email);
+	}
+	/*	FIM		-	RECUPERAÇÃO DOS MESES DE CADASTRO PARA OS GRÁFICOS	*/
+	
+	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE EVOLUÇÃO PATRIMONIAL	*/
+	public List<BigDecimal> listarValoresEvolucaoPatrimonial() {
 		
-		List<String> arrayMesAno = listarMesesGraficoBarra();
+		Long id = retornaIdUsuarioLogado();
+		
+		List<String> arrayMesAno = listarMesesGraficos();
 		List<BigDecimal> arrayPatrimonio = new ArrayList<BigDecimal>();
 		
 		BigDecimal patrimonioMesAtual = new BigDecimal(0);
@@ -174,53 +187,22 @@ public class HomeController {
 				arrayPatrimonio.add(patrimonioAnterior);
 			} else {
 				arrayPatrimonio.add(patrimonioAnterior.add(patrimonioMesAtual));
-				patrimonioAnterior = patrimonioMesAtual;
+				patrimonioAnterior = (patrimonioAnterior.add(patrimonioMesAtual));
 			}
 		}
 		
 		return arrayPatrimonio;
 	}
 	
-	public List<String> listarMesesGraficoBarra() {
-		
-		LocalDate mesAnoCadastro = LocalDate.now();
-		mesAnoCadastro = mesAnoCadastro.minusMonths(1);
-		
-		int mes = mesAnoCadastro.getMonth().getValue();
-		int ano = mesAnoCadastro.getYear();
-		
-		List<String> arrayMesAno = new ArrayList<String>();
-		
-		while(mes <= LocalDate.now().getMonth().getValue()) {
-			
-			if(mes == 10 || mes == 11 || mes == 12) {
-				arrayMesAno.add(mes + "/" + ano);
-			} else {
-				arrayMesAno.add("0" + mes + "/" + ano);
-			}
-			
-			mes = mes + 1;
-		}
-		
-		return arrayMesAno;
-	}
-	
 	public BigDecimal listarHistoricoMensalPatrimonio(Long identificadorUsuario, String mes, String ano) {
-		return patrimonioRepository.buscarPatrimonioNoMesAno(identificadorUsuario, mes, ano);
+		return patrimonioRepository.buscarPatrimonioPorMesAno(identificadorUsuario, mes, ano);
 	}
-	/*	FIM		-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE BARRAS	*/
+	/*	FIM		-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE EVOLUÇÃO PATRIMONIAL	*/
 	
-	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE DOUGHNUT	*/
-	public List<BigDecimal> listarPercentuaisReceitasGraficoRosquinha() {
+	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE PERCENTUAIS	*/
+	public List<BigDecimal> listarPercentuaisReceitas() {
 		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;    
-		if (principal instanceof UserDetails) {
-			email = ((UserDetails)principal).getUsername();
-		} else {
-			email = principal.toString();
-		}
-		Long id = retornaIdUsuarioLogado(email);
+		Long id = retornaIdUsuarioLogado();
 		
 		BigDecimal totalSalario = receitaRepository.totalReceitasPorCategoria("Salário", id);
 		BigDecimal totalRendimentos = receitaRepository.totalReceitasPorCategoria("Rendimentos", id);
@@ -258,16 +240,9 @@ public class HomeController {
 		return porcentagemCategoria;
 	}
 	
-	public List<BigDecimal> listarPercentuaisDespesasGraficoRosquinha() {
+	public List<BigDecimal> listarPercentuaisDespesas() {
 		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;    
-		if (principal instanceof UserDetails) {
-			email = ((UserDetails)principal).getUsername();
-		} else {
-			email = principal.toString();
-		}
-		Long id = retornaIdUsuarioLogado(email);
+		Long id = retornaIdUsuarioLogado();
 		
 		BigDecimal totalAlimentacao = despesaRepository.totalDespesasPorCategoria("Alimentação", id);
 		BigDecimal totalTransporte = despesaRepository.totalDespesasPorCategoria("Transporte", id);
@@ -311,75 +286,93 @@ public class HomeController {
 		
 		return porcentagemCategoria;
 	}
-	/*	FIM	-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE DOUGHNUT	*/
+	/*	FIM	-		RECUPERAÇÃO DE DADOS DO GRÁFICO DE PERCENTUAIS	*/
 	
-	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DA TELA DE LANÇAMENTOS	*/
-	@GetMapping("/releases")
-	public Map<Integer, List<Object>> listarLancamentos() {
+	/*	INÍCIO	-	RECUPERAÇÃO DE DADOS DO GRÁFICO DE BALANÇO RECEITA X DESPESA X PATRIMÔNIO	*/
+	public List<BigDecimal> listarBalancoReceitas() {
+		Long id = retornaIdUsuarioLogado();
 		
-		Map<Integer, List<Object>> lancamentos = new HashMap<Integer, List<Object>>();
+		List<BigDecimal> arrayReceitasMesAno = new ArrayList<BigDecimal>();
 		
-		List<Object> lancamentosReceitas = new ArrayList<>();
-		List<Object> lancamentosDespesas = new ArrayList<>();
+		List<String> arrayMesAno = listarMesesGraficos();
 		
-		List<Receita> listaReceitas = listarReceitas();
-		List<Despesa> listaDespesas = listarDespesas();
+		BigDecimal totalReceitasMesAno = new BigDecimal(0);
 		
-		for (Receita receitas : listaReceitas) {
-			lancamentosReceitas.add(receitas);
+		for (String mesAno : arrayMesAno) {
+			String mes = mesAno.substring(0, 2);
+			String ano = mesAno.substring(3, 7);
+			
+			totalReceitasMesAno = listarReceitasPorMesAno(id, mes, ano);
+			
+			if(totalReceitasMesAno != null) {
+				arrayReceitasMesAno.add(totalReceitasMesAno);
+			} else {
+				arrayReceitasMesAno.add(new BigDecimal(0));
+			}
+			
+			
 		}
 		
-		for (Despesa despesas : listaDespesas) {
-			lancamentosDespesas.add(despesas);
-		}
-		
-		lancamentos.put(1, lancamentosReceitas);
-		lancamentos.put(2, lancamentosDespesas);
-		
-		return lancamentos;
+		return arrayReceitasMesAno;
 	}
 	
-	public List<Receita> listarReceitas() {
-		List<Receita> arrayReceitas = new ArrayList<Receita>();
-		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;    
-		if (principal instanceof UserDetails) {
-			email = ((UserDetails)principal).getUsername();
-		} else {
-			email = principal.toString();
-		}
-		Long id = retornaIdUsuarioLogado(email);
-		
-		List<Receita> receitas = receitaRepository.listarReceitasUsuario(id);
-		
-		for (Receita receita : receitas) {
-			arrayReceitas.add(receita);
-		}
-		
-		return arrayReceitas;
+	public BigDecimal listarReceitasPorMesAno(Long identificadorUsuario, String mes, String ano) {
+		return receitaRepository.totalReceitasPorMesAno(identificadorUsuario, mes, ano);
 	}
 	
-	public List<Despesa> listarDespesas() {
-		List<Despesa> arrayDespesas = new ArrayList<Despesa>();
+	public List<BigDecimal> listarBalancoDespesas() {
+		Long id = retornaIdUsuarioLogado();
 		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;    
-		if (principal instanceof UserDetails) {
-			email = ((UserDetails)principal).getUsername();
-		} else {
-			email = principal.toString();
+		List<BigDecimal> arrayDespesasMesAno = new ArrayList<BigDecimal>();
+		
+		List<String> arrayMesAno = listarMesesGraficos();
+		
+		BigDecimal totalDespsasMesAno = new BigDecimal(0);
+		
+		for (String mesAno : arrayMesAno) {
+			String mes = mesAno.substring(0, 2);
+			String ano = mesAno.substring(3, 7);
+			
+			totalDespsasMesAno = listarDespesasPorMesAno(id, mes, ano);
+			
+			if(totalDespsasMesAno != null) {
+				arrayDespesasMesAno.add(totalDespsasMesAno);
+			} else {
+				arrayDespesasMesAno.add(new BigDecimal(0));
+			}
 		}
-		Long id = retornaIdUsuarioLogado(email);
 		
-		List<Despesa> despesas = despesaRepository.listarDespesasUsuario(id);
-		
-		for (Despesa despesa : despesas) {
-			arrayDespesas.add(despesa);
-		}
-		
-		return arrayDespesas;
+		return arrayDespesasMesAno;
 	}
-	/*	FIM	-	RECUPERAÇÃO DE DADOS DA TELA DE LANÇAMENTOS	*/
+	
+	public BigDecimal listarDespesasPorMesAno(Long identificadorUsuario, String mes, String ano) {
+		return despesaRepository.totalDespesasPorMesAno(identificadorUsuario, mes, ano);
+	}
+	
+	public List<BigDecimal> listarBalancoPatrimonio() {
+		Long id = retornaIdUsuarioLogado();
+		
+		List<BigDecimal> arrayPatrimonioMesAno = new ArrayList<BigDecimal>();
+		
+		List<String> arrayMesAno = listarMesesGraficos();
+		
+		BigDecimal totalPatrimonioMesAno = new BigDecimal(0);
+		
+		for (String mesAno : arrayMesAno) {
+			String mes = mesAno.substring(0, 2);
+			String ano = mesAno.substring(3, 7);
+			
+			totalPatrimonioMesAno = listarHistoricoMensalPatrimonio(id, mes, ano);
+			
+			if(totalPatrimonioMesAno != null) {
+				arrayPatrimonioMesAno.add(totalPatrimonioMesAno);
+			} else {
+				arrayPatrimonioMesAno.add(new BigDecimal(0));
+			}
+		}
+		
+		return arrayPatrimonioMesAno;
+	}
+	/*	FIM	-		RECUPERAÇÃO DE DADOS DO GRÁFICO DE BALANÇO RECEITA X DESPESA X PATRIMÔNIO	*/
 
 }

@@ -16,6 +16,8 @@ export default new Vuex.Store({
     showModalGuardar: false,
     showModalResgatar: false,
 
+    showModalEditUser: false,
+
     cadastro: [],
     isUpdate: false,
 
@@ -26,11 +28,11 @@ export default new Vuex.Store({
 
     autenticado: localStorage.getItem('autenticado'),
     usuarioLogado: {
-        id:     localStorage.getItem('id'),
-        nome:   localStorage.getItem('nome'),
-        email:  localStorage.getItem('email'),
-        senha:  localStorage.getItem('senha'),
-        data:   localStorage.getItem('data')
+        id:             localStorage.getItem('id'),
+        nome:           localStorage.getItem('nome'),
+        email:          localStorage.getItem('email'),
+        senha:          localStorage.getItem('senha'),
+        dataCadastro:   localStorage.getItem('dataCadastro'),
     },
 
     spinner: false
@@ -38,6 +40,14 @@ export default new Vuex.Store({
   },
 
   mutations: {
+
+    OPEN_MODAL_EDIT_USER(state) {
+        state.showModalEditUser = true
+    },
+
+    CLOSE_MODAL_EDIT_USER(state) {
+        state.showModalEditUser = false
+    },
 
     SET_SPINNER(state, payload) {
         state.spinner = payload
@@ -56,8 +66,8 @@ export default new Vuex.Store({
         localStorage.setItem('nome', payload.nome);
         localStorage.setItem('email', payload.email);
         localStorage.setItem('senha', payload.senha);
-        localStorage.setItem('data', payload.data)
-
+        localStorage.setItem('dataCadastro', payload.dataCadastro)
+        
         /**
          * Por outro lado, preciso também setar a informação diretamente no state,
          * porque o primeiro carregamento da home é feito antes da store retornar os
@@ -70,7 +80,7 @@ export default new Vuex.Store({
         state.usuarioLogado.nome = payload.nome
         state.usuarioLogado.email = payload.email
         state.usuarioLogado.senha = payload.senha
-        state.usuarioLogado.data = payload.data
+        state.usuarioLogado.dataCadastro = payload.dataCadastro
     },
 
     SET_STATUS_AUTENTICACAO(state, payload) {

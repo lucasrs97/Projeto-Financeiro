@@ -62,6 +62,11 @@ public class Receita implements Serializable {
 		
 		String valorFormatado = df.format(getValor());
 		
+		int posicaoVirgula = valorFormatado.indexOf(",");
+		if(posicaoVirgula == 0) {
+			valorFormatado = "0" + valorFormatado;
+		}
+		
 		return "R$ " + valorFormatado;
 	}
 	

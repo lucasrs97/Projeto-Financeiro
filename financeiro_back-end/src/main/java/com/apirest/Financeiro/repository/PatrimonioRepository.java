@@ -21,8 +21,7 @@ public interface PatrimonioRepository extends JpaRepository<Patrimonio, Long> {
 			nativeQuery = true
 			
 	)
-	public BigDecimal buscarPatrimonioNoMesAno(Long identificadorUsuario, String mes, String ano);
-	
+	public BigDecimal buscarPatrimonioPorMesAno(Long identificadorUsuario, String mes, String ano);
 	
 	@Query (value = "SELECT * FROM patrimonio WHERE identificador_usuario = ?1", nativeQuery = true)
 	public List<Patrimonio> listarPatrimonioUsuario(Long identificadorUsuario);

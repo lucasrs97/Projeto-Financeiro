@@ -39,12 +39,13 @@
                 <v-chip :color="getColor(item.tipo)" dark>{{ item.tipo }}</v-chip>
             </template>
 
-            <!-- Valor formatado não ordena corretamente
-            <template v-slot:item.valorFormatado="{ item }">
-                <v-chip outlined :color="getColor(item.tipo)" dark> {{ item.valorFormatado }}</v-chip>
-            </template> -->
+            <template v-slot:item.data="{ item }">
+            <!--    <v-chip> {{ item.dataFormatada }}   </v-chip>  -->
+                {{ item.dataFormatada }}
+            </template>
+           
             <template v-slot:item.valor="{ item }">
-                <v-chip outlined :color="getColor(item.tipo)" dark> {{ item.valor }}</v-chip>
+                <v-chip outlined :color="getColor(item.tipo)" dark> {{ item.valorFormatado }}</v-chip>
             </template>
 
         </v-data-table>
@@ -60,15 +61,8 @@ export default {
         search: '',
         headers: [
             { text: 'TIPO DE LANÇAMENTO', align: 'start', value: 'tipo', },
-          
-            // Ao utilizar a data formatada, a ordenação, que é feita com a data no formato ISO, apresenta problemas.
-            //{ text: 'DATA', value: 'dataFormatada' },
             { text: 'DATA', value: 'data' },
-            
-            // Ao utilizar o valor formatado, a ordenação, que é feita com o valor puro, apresenta problemas.
-            //{ text: 'VALOR', value: 'valorFormatado' },
             { text: 'VALOR', value: 'valor' },
-
             { text: 'CATEGORIA', value: 'categoria' },
             { text: 'DESCRIÇÃO', value: 'descricao' },
           

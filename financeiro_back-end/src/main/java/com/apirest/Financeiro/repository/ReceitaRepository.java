@@ -19,4 +19,7 @@ public interface ReceitaRepository extends JpaRepository<Receita, Long> {
 	@Query (value = "SELECT SUM(VALOR) FROM RECEITAS WHERE CATEGORIA = ?1 AND IDENTIFICADOR_USUARIO = ?2", nativeQuery = true)
 	public BigDecimal totalReceitasPorCategoria(String categoria, Long identificadorUsuario);
 	
+	@Query (value = "SELECT SUM(VALOR) FROM RECEITAS WHERE IDENTIFICADOR_USUARIO = ?1 AND MONTH(data) = ?2 AND YEAR(data) = ?3", nativeQuery = true)
+	public BigDecimal totalReceitasPorMesAno(Long identificadorUsuario, String mes, String ano);
+	
 }

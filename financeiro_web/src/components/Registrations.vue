@@ -54,8 +54,9 @@
                     <v-row>
                         <v-col cols="12" md="6">
                             <v-text-field
-                                v-model.lazy="cadastros.valor"
+                                v-model="valorFormatado"
                                 @change="formatarValor"
+                                @keypress="bloqueiaNaoNumeros"
 
                                 :error-messages="valorErrors"
                                 label="Valor*"
@@ -164,8 +165,6 @@ export default {
 
         deletarRegistro: false,
 
-        formatPrice: '',
-
     }),
 
     created() {},
@@ -179,17 +178,28 @@ export default {
     },
 
     watch: {
-      formatPrice: function () {
-            this.formatPrice = this.formataValor(this.formatPrice)
-            console.log(this.formatPrice)
-        },
-
         date () {
             this.dateFormatted = this.formatDate(this.date)
         },
     },
 
     computed: {
+
+        valorFormatado: {
+            get: function() {
+                return this.cadastros.valor
+            },
+
+            set: function(novoValor) {
+                var valorFormatado = novoValor.replace(/\D/g,'');
+                valorFormatado = (valorFormatado/100).toFixed(2) + '';
+                valorFormatado = valorFormatado.replace(".", ",");
+                valorFormatado = valorFormatado.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+                valorFormatado = valorFormatado.replace(/(\d)(\d{3}),/g, "$1.$2,");
+                this.cadastros.valor = valorFormatado;
+                
+            }
+        },
 
         valorErrors () {
             const errors = []
@@ -277,8 +287,18 @@ export default {
         },
 
     },
-
     methods: {
+
+        bloqueiaNaoNumeros() {
+            if(! ((event.charCode >= 48 && event.charCode <= 57) || (event.keyCode == 45 || event.charCode == 46))) {
+                this.cadastros.valor = ''
+            }
+        },
+
+        formatarValor() {
+            let valorSemFormatacao = this.retiraFormatacao(this.cadastros.valor)
+            this.cadastros.valor = Number(valorSemFormatacao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        },
 
         retiraFormatacao(valor) {
             let valorSemFormatacao = ''
@@ -297,11 +317,6 @@ export default {
             valorSemFormatacao = valorSemFormatacao.replace(',','.')
 
             return valorSemFormatacao
-        },
-
-        formatarValor() {
-            let valorSemFormatacao = this.retiraFormatacao(this.cadastros.valor)
-            this.cadastros.valor = Number(valorSemFormatacao).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
         },
 
         ...mapMutations([

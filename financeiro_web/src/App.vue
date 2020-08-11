@@ -47,4 +47,8 @@ export default {
         align-items: center;
         justify-content: center;
     }
+
+    .v-content__wrap {
+        background-color: whitesmoke;
+    }
 </style>

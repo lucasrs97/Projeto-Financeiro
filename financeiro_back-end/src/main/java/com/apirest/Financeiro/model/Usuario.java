@@ -26,7 +26,7 @@ public class Usuario implements UserDetails, Serializable {
 	@Column(nullable = false)
 	private String nome;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 	
 	@Column(nullable = false)
@@ -69,12 +69,13 @@ public class Usuario implements UserDetails, Serializable {
 	}
 	
 	public LocalDate getDataCadastro() {
-		return dataCadastro;
+		return dataCadastro.plusDays(1);
 	}
 	
 	public void setDataCadastro(LocalDate dataCadastro) {
 		this.dataCadastro = dataCadastro;
 	}
+	
 	/*	MÉTODOS GET E SET */
 
 	@Override

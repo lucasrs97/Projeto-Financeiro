@@ -10,11 +10,14 @@ export default {
         caixa: '',
         totalPatrimonio: '',
 
-        mesesEvolucaoPatrimonial: [],
-        valoresEvolucaoPatrimonial: [],
+        mesesGraficos: [],
 
+        valoresEvolucaoPatrimonial: [],
         valoresPercentuaisReceitas: [],
         valoresPercentuaisDespesas: [],
+        valoresBalancoReceita: [],
+        valoresBalancoDespesa: [],
+        valoresBalancoPatrimonio: [],
 
         loaded: false
     },
@@ -26,17 +29,27 @@ export default {
             state.totalDespesas      = Number(payload[0][1]).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             state.caixa              = Number(payload[0][2]).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             state.totalPatrimonio    = Number(payload[0][3]).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            //  Cards principais
+
+            //  Meses
+            state.mesesGraficos =   payload[1];
 
             //  Gráfico de evolulção patrimonial
-            state.mesesEvolucaoPatrimonial =   payload[1];
             state.valoresEvolucaoPatrimonial =  payload[2];
-            //  Gráfico de evolulção patrimonial
 
-            //  Gráfico de rosquinha (RECEITAS X DESPESAS)
+            //  Gráfico de percentuais (RECEITAS)
             state.valoresPercentuaisReceitas = payload[3];
+
+            //  Gráfico de percentuais (DESPESAS)
             state.valoresPercentuaisDespesas = payload[4];
-            //  Gráfico de rosquinha (RECEITAS X DESPESAS)
+
+            //  Gráfico de Balanço Mensal (RECEITA)
+            state.valoresBalancoReceita = payload[5];
+
+            //  Gráfico de Balanço Mensal (DESPESA)
+            state.valoresBalancoDespesa = payload[6];
+
+            //  Gráfico de Balanço Mensal (PATRIMÔNIO)
+            state.valoresBalancoPatrimonio = payload[7];
 
             state.loaded = true;
         }
@@ -45,6 +58,7 @@ export default {
     actions: {
         listar_dados_home(store) {
             Home.listar().then(resposta => {
+                console.log(resposta.data)
                 store.commit('LISTAR_DADOS_HOME', resposta.data)
             }).catch( () => {
                 alert("Houve um problema ao tentar recuperar os registros.")
