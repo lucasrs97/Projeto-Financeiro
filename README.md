@@ -1,5 +1,5 @@
 # Projeto-Financeiro
-Projeto Financeiro para fins de estudo pessoal com o objetivo de aprofundar meus conhecimentos no desenvolvimento de aplicações.
+Projeto Financeiro para fins de estudo pessoal com o objetivo de aprofundar meus conhecimentos no desenvolvimento de aplicações web.
 
 Tecnologias utilizadas:
 
